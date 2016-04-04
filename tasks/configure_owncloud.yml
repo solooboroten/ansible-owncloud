@@ -87,7 +87,18 @@
 - name: Automatically finish setup if allowed
   uri:
     url: '{{ owncloud_autosetup_url }}'
+    status_code: '200,401'
+  register: owncloud_auto_finish_setup
   when: owncloud_config_file is defined and not owncloud_config_file.stat.exists and
+        owncloud_admin_username and owncloud_autosetup
+
+- name: Check automatically finish setup if allowed
+  uri:
+    url: '{{ owncloud_autosetup_url }}'
+  when: owncloud_auto_finish_setup is defined and
+        owncloud_auto_finish_setup.status is defined and
+        owncloud_auto_finish_setup.status|int != 200 and
+        owncloud_config_file is defined and not owncloud_config_file.stat.exists and
         owncloud_admin_username and owncloud_autosetup
 
 - name: Allow to use the PHP CLI even if OCMemcacheAPCu is used
